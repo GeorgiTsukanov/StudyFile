@@ -1,0 +1,51 @@
+#include <iostream>
+#include <fstream>
+#include <windows.h>
+#include <string>
+
+using namespace std;
+
+int main()
+{
+    fstream AF;
+    fstream RF;
+
+    string P_AF = "/AnswerFile.txt";
+    string P_RF = "/RequestFile.txt";
+
+    int answer;
+    long long pred_size;
+    
+    while (true) {
+        cout << "Input query\nFormat:73 123 NAME" << endl;
+        string s;
+        getline(cin, s);
+
+        RF.open(P_RF, ios::app);
+        if (RF.is_open()){
+            RF << s << endl;
+            RF.close();
+        }
+
+        AF.open(P_AF, ios::in);
+        if (AF.is_open()) {
+            AF.seekg(0, ios::end);
+            pred_size = AF.tellg();
+
+            while (pred_size >= AF.tellg()) {
+                Sleep(1000);
+                AF.seekg(0, ios::end);
+            }
+            AF.seekg(pred_size, ios::beg);
+            string otvet_s_servera;
+            AF >> otvet_s_servera;
+
+            answer = stoi(otvet_s_servera);
+
+            AF.close();
+        }
+
+        cout << "\nIMT: " << answer << endl;
+    }
+    
+}
