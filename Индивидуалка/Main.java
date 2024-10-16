@@ -1,6 +1,3 @@
-import javax.swing.*;
-import java.awt.*;
-
 public class Main {
     public static void main(String[] args) {
         task2();
@@ -39,20 +36,6 @@ public class Main {
                 "112");
         p1.deleteContact("Экстренные оперативные службы", "112");
         System.out.println(p1.info());
-    }
-
-
-
-
-    private void draw(){
-        JFrame frame = new JFrame("s");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Dimension size = new Dimension(800, 600 );
-        frame.setSize(size);
-        frame.setMinimumSize(size);
-        frame.setUndecorated(false);
-        frame.add(new Panel());
-        frame.setVisible(true);
     }
 }
 
