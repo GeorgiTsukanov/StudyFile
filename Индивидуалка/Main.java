@@ -4,9 +4,17 @@ public class Main {
     }
 
     private static void task1(){
+        Angle a = new Angle(32.993);
+        a.degre_minute();
+
         Angle a1 = new Angle(713);
-        Angle a2 = new Angle(120, true);
-        System.out.println(a1.getAngle() + " " +a2.getAngle());
+        Angle a2 = new Angle(33);
+        Angle a1_a2 = a1.increaseAngle(a2);
+        System.out.println(a1_a2.getAngle());
+
+        Angle b1 = new Angle(713);
+        Angle b1_30 = b1.increaseAngle(30);
+        System.out.println(b1_30.getAngle());
 
         Angle a3 = new Angle(334);
         switch (a1.compare(a3)){
@@ -14,9 +22,6 @@ public class Main {
             case 0: System.out.println("a1 равен a3"); break;
             case 1: System.out.println("a1 больше a3"); break;
         }
-
-        a1.increaseAngle(a3);
-        System.out.println(a1.getAngle());
     }
 
     private static void task2(){
