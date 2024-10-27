@@ -1,0 +1,61 @@
+#include <iostream>
+#include <windows.h>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+struct Person {
+    //string name;
+    int weight;
+    int height;
+    char name[25];
+}pers;
+
+int main()
+{
+    setlocale(LC_ALL, "rus");
+    int answer;
+    long long pred_size;
+    while (true) {
+        cout << "Введите вес:" << endl;
+        cin >> pers.weight;
+        cout << "Введите рост:" << endl;
+        cin >> pers.height;
+        cout << "Введите имя:" << endl;
+        cin >> pers.name;
+
+        //
+        fstream client_file;
+        string path = "../FileBin/";
+        string name(pers.name);
+        path.append(name).append(".bin");
+        client_file.open(path, ios::binary | ios::app);
+        client_file.close();
+        //
+
+        fstream request;
+        request.open("../FileBin/RequestBin.bin", ios::binary | ios::app);
+        request.write((char*)&pers, sizeof(pers));
+        request.close();
+
+        Sleep(100);
+        client_file.open(path, ios::binary | ios::in);
+
+        client_file.seekg(0, ios::end);
+        pred_size = client_file.tellg();
+        while (pred_size >= client_file.tellg()) {
+            Sleep(100);
+            client_file.seekg(0, ios::end);
+        }
+        client_file.seekg(pred_size, ios::beg);
+        client_file.read((char*)&answer, sizeof(answer));
+        client_file.close();
+
+        switch (answer) {
+        case 0: { cout << "Недостаток веса\n"; break; }
+        case 1: { cout << "Норма веса\n"; break; }
+        case 2: { cout << "Избыток веса\n"; break; }
+        }
+    }
+}
