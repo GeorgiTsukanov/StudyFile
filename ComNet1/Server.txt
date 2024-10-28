@@ -1,0 +1,86 @@
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <windows.h>
+#include <cmath>
+
+using namespace std;
+
+
+void index_body(string s) {
+	setlocale(LC_ALL, "rus");
+	fstream AF;
+	//string P_AF = "Z:/AnswerFile.txt";
+
+
+	string name = s.substr(0, s.find('?', 0));
+
+	/*
+	int weight = stoi(s.substr(0, s.find('!', 0)));
+	int height = stoi(s.substr(s.find('!', 0)+1, s.size()-1));
+	*/
+
+	int weight = stoi(s.substr(s.find('?', 0) + 1, s.find('!', 0)));
+	int height = stoi(s.substr(s.find('!', 0) + 1, s.size()));
+
+	double IMT = weight / pow(0.01 * height, 2);
+
+	int answer;
+
+	if (IMT >= 18.5 && IMT < 25) {
+		answer = 1;
+	}
+	if (IMT < 18.5) {
+		answer = 0;
+	}
+	if (IMT >= 25) {
+		answer = 2;
+	}
+
+	string P_AF = "Z:/ComNet_1(1)/AnswerFile.txt";
+
+	AF.open(P_AF, ios::app);
+	if (AF.is_open()) {
+		AF << answer << "?" << name << endl;
+		AF.close();
+	}
+	cout << "Сервер обработал запрос" << endl;
+}
+
+
+int main() {
+	setlocale(LC_ALL, "rus");
+	long long size_pred = 0;
+	string P_RF = "Z:/ComNet_1(1)/RequestFile.txt";
+	fstream RF;
+
+	RF.open(P_RF, ios::in);
+	if (RF.is_open()) {
+		RF.seekg(0, ios::end);
+		size_pred = RF.tellg();
+		RF.close();
+		cout << "Сервер начал работу" << endl;
+	}
+
+	while (true) {
+		RF.open(P_RF, ios::in);
+		if (RF.is_open()) {
+			RF.seekg(0, ios::end);
+			while (size_pred >= RF.tellg()) {
+				Sleep(3000);
+				RF.seekg(0, ios::end);
+			}
+
+			cout << "Сервер получил запрос" << endl;
+
+			RF.seekg(size_pred, ios::beg);
+			string s;
+			getline(RF, s);
+
+			size_pred = RF.tellg();
+			RF.close();
+
+			index_body(s);
+		}
+	}
+}
