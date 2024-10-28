@@ -1,0 +1,73 @@
+#include <iostream>
+#include <fstream>
+#include <windows.h>
+#include <string>
+
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "rus");
+    fstream AF;
+    fstream RF;
+
+    string P_AF = "Z:/Comnet_1(1)/AnswerFile.txt";
+    string P_RF = "Z:/Comnet_1(1)/RequestFile.txt";
+
+    int answer = -1;
+    long long pred_size;
+
+    while (true) {
+        string s;
+        string v;
+
+        cout << "Введите имя:" << endl;
+        cin >> v;
+        s.append(v);
+        s.push_back('?');
+
+        cout << "Введите вес: " << endl;
+        cin >> v;
+        s.append(v);
+        s.push_back('!');
+
+        cout << "Введите рост:" << endl;
+        cin >> v;
+        s.append(v).append("^");
+
+
+        RF.open(P_RF, ios::app);
+        if (RF.is_open()) {
+            RF << s << endl;
+            RF.close();
+        }
+
+        AF.open(P_AF, ios::in);
+        if (AF.is_open()) {
+            AF.seekg(0, ios::end);
+            pred_size = AF.tellg();
+
+            while (pred_size >= AF.tellg()) {
+                Sleep(1000);
+                AF.seekg(0, ios::end);
+            }
+            AF.seekg(pred_size, ios::beg);
+            string otvet_s_servera;
+            AF >> otvet_s_servera;
+            cout << otvet_s_servera;
+            string otvet_s_servera = otvet_s_servera.substr(otvet_s_servera.find('?', 0) + 1, otvet_s_servera.size() - 1);
+            answer = stoi(otvet_s_servera);
+
+            AF.close();
+        }
+
+        switch (answer) {
+        case -1: {cout << "Ошибка на сервере\n"; break; }
+        case 0: {cout << "Недостаток веса\n"; break; }
+        case 1: {cout << "Норма веса\n"; break; }
+        case 2: {cout << "Избыток веса\n"; break; }
+        }
+
+    }
+
+}
