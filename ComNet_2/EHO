@@ -1,0 +1,150 @@
+// udp_echo_client.cpp
+#include <iostream>
+#include <winsock2.h>
+
+#pragma comment(lib, "ws2_32.lib")
+
+#define SERVER_PORT 8080
+#define BUFFER_SIZE 1024
+#define SERVER_IP "127.0.0.1"
+
+int main() {
+    WSADATA wsaData;
+    SOCKET clientSocket;
+    sockaddr_in serverAddr;
+    char buffer[BUFFER_SIZE];
+
+    // Инициализация библиотеки Winsock
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "WSAStartup failed with error: " << WSAGetLastError() << std::endl;
+        return 1;
+    }
+
+    // Создание сокета
+    clientSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (clientSocket == INVALID_SOCKET) {
+        std::cerr << "Socket creation failed with error: " << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return 1;
+    }
+
+    // Настройка адреса сервера
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(SERVER_PORT);
+    serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
+
+    while (true) {
+        std::cout << "Enter message to send: ";
+        std::cin.getline(buffer, BUFFER_SIZE);
+
+        // Отправка сообщения серверу
+        int bytesSent = sendto(clientSocket, buffer, strlen(buffer), 0, (sockaddr*)&serverAddr, sizeof(serverAddr));
+        if (bytesSent == SOCKET_ERROR) {
+            std::cerr << "sendto failed with error: " << WSAGetLastError() << std::endl;
+            continue;
+        }
+
+        // Получение ответа от сервера
+        int serverAddrSize = sizeof(serverAddr);
+        int bytesReceived = recvfrom(clientSocket, buffer, BUFFER_SIZE, 0, (sockaddr*)&serverAddr, &serverAddrSize);
+        if (bytesReceived == SOCKET_ERROR) {
+            std::cerr << "recvfrom failed with error: " << WSAGetLastError() << std::endl;
+            continue;
+        }
+
+        buffer[bytesReceived] = '\0';
+        std::cout << "Received echo: " << buffer << std::endl;
+    }
+
+    // Закрытие сокета и очистка Winsock
+    closesocket(clientSocket);
+    WSACleanup();
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+////
+
+
+
+// udp_echo_client.cpp
+#include <iostream>
+#include <winsock2.h>
+#include <ws2tcpip.h> // Для inet_pton
+
+#pragma comment(lib, "ws2_32.lib")
+
+#define SERVER_PORT 8080
+#define BUFFER_SIZE 1024
+#define SERVER_IP "127.0.0.1"
+
+int main() {
+    WSADATA wsaData;
+    SOCKET clientSocket;
+    sockaddr_in serverAddr;
+    char buffer[BUFFER_SIZE];
+
+    // Инициализация библиотеки Winsock
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "WSAStartup failed with error: " << WSAGetLastError() << std::endl;
+        return 1;
+    }
+
+    // Создание сокета
+    clientSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (clientSocket == INVALID_SOCKET) {
+        std::cerr << "Socket creation failed with error: " << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return 1;
+    }
+
+    // Настройка адреса сервера
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(SERVER_PORT);
+    
+    // Заменяем inet_addr на inet_pton для безопасности
+    if (inet_pton(AF_INET, SERVER_IP, &serverAddr.sin_addr) <= 0) {
+        std::cerr << "Invalid address/ Address not supported" << std::endl;
+        closesocket(clientSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    while (true) {
+        std::cout << "Enter message to send: ";
+        std::cin.getline(buffer, BUFFER_SIZE);
+
+        // Отправка сообщения серверу
+        int bytesSent = sendto(clientSocket, buffer, strlen(buffer), 0, (sockaddr*)&serverAddr, sizeof(serverAddr));
+        if (bytesSent == SOCKET_ERROR) {
+            std::cerr << "sendto failed with error: " << WSAGetLastError() << std::endl;
+            continue;
+        }
+
+        // Получение ответа от сервера
+        int serverAddrSize = sizeof(serverAddr);
+        int bytesReceived = recvfrom(clientSocket, buffer, BUFFER_SIZE, 0, (sockaddr*)&serverAddr, &serverAddrSize);
+        if (bytesReceived == SOCKET_ERROR) {
+            std::cerr << "recvfrom failed with error: " << WSAGetLastError() << std::endl;
+            continue;
+        }
+
+        buffer[bytesReceived] = '\0';
+        std::cout << "Received echo: " << buffer << std::endl;
+    }
+
+    // Закрытие сокета и очистка Winsock
+    closesocket(clientSocket);
+    WSACleanup();
+    return 0;
+}
