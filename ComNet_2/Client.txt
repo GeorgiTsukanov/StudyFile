@@ -1,61 +1,100 @@
 #include <iostream>
-#include <windows.h>
-#include <fstream>
-#include <string>
+#include <winsock2.h>
+#include <ws2tcpip.h> // Для inet_pton
+
+#pragma comment(lib, "Ws2_32.lib")
 
 using namespace std;
 
 struct Person {
-    //string name;
     int weight;
     int height;
     char name[25];
-}pers;
+};
 
-int main()
-{
-    setlocale(LC_ALL, "rus");
-    int answer;
-    long long pred_size;
+struct Answer {
+    int IMT;
+    char name[25];
+};
+
+int main() {
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    // Инициализация Winsock
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2, 2), &wsaData);
+
+    // Создание сокета
+    SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (clientSocket == INVALID_SOCKET) {
+        cout << "Ошибка создания сокета" << endl;
+        WSACleanup();
+        return 1;
+    }
+
+    // Настройка адреса сервера
+    sockaddr_in serverAddr;
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(12345); // Порт для соединения
+
+    // Преобразование IP-адреса в бинарный вид
+    const char* serverIP = "127.0.0.1";
+    if (inet_pton(AF_INET, serverIP, &serverAddr.sin_addr) <= 0) {
+        cout << "Ошибка преобразования IP-адреса" << endl;
+        closesocket(clientSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    // Подключение к серверу
+    if (connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
+        cout << "Ошибка подключения к серверу" << endl;
+        closesocket(clientSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    cout << "Подключено к серверу" << endl;
+
+    Person pers;
+    Answer answer;
+
     while (true) {
-        cout << "Введите вес:" << endl;
+        // Ввод данных пользователя
+        cout << "Введите вес: ";
         cin >> pers.weight;
-        cout << "Введите рост:" << endl;
+        cout << "Введите рост: ";
         cin >> pers.height;
-        cout << "Введите имя:" << endl;
-        cin >> pers.name;
+        cout << "Введите имя: ";
+        cin.ignore();
+        cin.getline(pers.name, 25);
 
-        //
-        fstream client_file;
-        string path = "../FileBin/";
-        string name(pers.name);
-        path.append(name).append(".bin");
-        client_file.open(path, ios::binary | ios::app);
-        client_file.close();
-        //
+        // Отправка данных серверу
+        send(clientSocket, (char*)&pers, sizeof(pers), 0);
 
-        fstream request;
-        request.open("../FileBin/RequestBin.bin", ios::binary | ios::app);
-        request.write((char*)&pers, sizeof(pers));
-        request.close();
-
-        Sleep(100);
-        client_file.open(path, ios::binary | ios::in);
-
-        client_file.seekg(0, ios::end);
-        pred_size = client_file.tellg();
-        while (pred_size >= client_file.tellg()) {
-            Sleep(100);
-            client_file.seekg(0, ios::end);
+        // Получение ответа от сервера
+        int bytesReceived = recv(clientSocket, (char*)&answer, sizeof(answer), 0);
+        if (bytesReceived <= 0) {
+            cout << "Соединение с сервером потеряно" << endl;
+            break;
         }
-        client_file.seekg(pred_size, ios::beg);
-        client_file.read((char*)&answer, sizeof(answer));
-        client_file.close();
 
-        switch (answer) {
-        case 0: { cout << "Недостаток веса\n"; break; }
-        case 1: { cout << "Норма веса\n"; break; }
-        case 2: { cout << "Избыток веса\n"; break; }
+        // Вывод результата
+        cout << "У пользователя " << answer.name << " ";
+        switch (answer.IMT) {
+        case 0:
+            cout << "недостаток веса\n";
+            break;
+        case 1:
+            cout << "вес в норме\n";
+            break;
+        case 2:
+            cout << "избыток веса\n";
+            break;
         }
     }
+
+    closesocket(clientSocket);
+    WSACleanup();
+    return 0;
 }
