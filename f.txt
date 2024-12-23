@@ -1,0 +1,133 @@
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#pragma comment(lib, "ws2_32.lib")
+#include <iostream>
+#include <WinSock2.h>
+#include <string>
+#include <fstream>
+
+void sendFile(SOCKET clientSocket, const std::string& filePath, const std::string& contentType) {
+    std::ifstream file(filePath, std::ios::in | std::ios::binary);
+    if (!file) {
+        std::string notFoundResponse = "HTTP/1.1 404 Not Found\n\n";
+        send(clientSocket, notFoundResponse.c_str(), notFoundResponse.size(), 0);
+        return;
+    }
+
+    std::string responseHeader = "HTTP/1.1 200 OK\nContent-Type: " + contentType + "\n\n";
+    send(clientSocket, responseHeader.c_str(), responseHeader.size(), 0);
+
+    // Send file content
+    char buffer[1024];
+    while (file.read(buffer, sizeof(buffer))) {
+        send(clientSocket, buffer, file.gcount(), 0);
+    }
+    send(clientSocket, buffer, file.gcount(), 0);
+}
+
+int main() {
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    std::cout << "Сервер работает\n";
+    SOCKET wsocket;
+    SOCKET new_wsocket;
+    WSADATA wsaData;
+    struct sockaddr_in server;
+    int server_len;
+    int BUFFER_SIZE = 30720;
+
+    
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cout << "Error\n";
+        return 1;
+    }
+
+    
+    wsocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (wsocket == INVALID_SOCKET) {
+        std::cout << "Error\n";
+        return 1;
+    }
+
+    
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = inet_addr("127.0.0.1");
+    server.sin_port = htons(8080);
+    server_len = sizeof(server);
+
+    if (bind(wsocket, (SOCKADDR*)&server, server_len) != 0) {
+        std::cout << "Error\n";
+        return 1;
+    }
+
+    
+    if (listen(wsocket, 20) != 0) {
+        std::cout << "Error\n";
+        return 1;
+    }
+
+    std::cout << "URL:  127.0.0.1:8080\n";
+
+    std::string basePath = "D:/CPP_ind/ind_3/site/";
+
+    while (true) {
+       
+        new_wsocket = accept(wsocket, (SOCKADDR*)&server, &server_len);
+        if (new_wsocket == INVALID_SOCKET) {
+            std::cout << "Could not accept\n";
+            continue;
+        }
+
+        
+        char buff[30720] = { 0 };
+        int bytes = recv(new_wsocket, buff, BUFFER_SIZE, 0);
+        if (bytes < 0) {
+            std::cout << "Could not read client request\n";
+            closesocket(new_wsocket);
+            continue;
+        }
+
+        std::string request(buff);
+        std::string filePath;
+
+        
+        if (request.find("GET /") != std::string::npos) {
+            size_t start = request.find("GET /") + 5;
+            size_t end = request.find(" ", start);
+            filePath = request.substr(start, end - start);
+            if (filePath.empty() || filePath == "/") {
+                filePath = "index.html";
+            }
+        }
+
+
+        std::string fullPath = basePath + filePath;
+
+     
+        std::string contentType;
+        if (filePath.find(".html") != std::string::npos) {
+            contentType = "text/html";
+        }
+        else if (filePath.find(".css") != std::string::npos) {
+            contentType = "text/css";
+        }
+        else if (filePath.find(".js") != std::string::npos) {
+            contentType = "application/javascript";
+        }
+        else {
+            std::string notFoundResponse = "HTTP/1.1 404 Not Found\n\n";
+            send(new_wsocket, notFoundResponse.c_str(), notFoundResponse.size(), 0);
+            closesocket(new_wsocket);
+            continue;
+        }
+
+    
+        sendFile(new_wsocket, fullPath, contentType);
+        std::cout << "Саут отправлен " << fullPath << " клиенту\n";
+
+        closesocket(new_wsocket);
+    }
+
+    closesocket(wsocket);
+    WSACleanup();
+    return 0;
+}
