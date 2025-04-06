@@ -26,12 +26,12 @@ CREATE TABLE Arendator(
     adress VARCHAR(100),
     phone_number VARCHAR(12) NOT NULL,
     
-    CONSTRAINT check_id_arendator CHECK (id_arendator >=10000 and id_arendator<= 99999)
-    CONSTRAINT check_phone_number CHECK (LENGTH(phone_number) BETWEEN 12 AND 15)
-    
+    CONSTRAINT check_id_arendator CHECK (id_arendator >=10000 and id_arendator<= 99999),
+    CONSTRAINT check_phone_number CHECK (LENGTH(phone_number) BETWEEN 12 AND 15 AND
+    REGEXP_LIKE(phone_number, '^\+[0-9]+$')
+        
 );
 
-ALTER TABLE Arendator 
 
 
 CREATE TABLE Auto_for_rent(
