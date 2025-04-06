@@ -4,7 +4,8 @@ CREATE TABLE Auto_sal(
     street VARCHAR(25) NOT NULL,
     
     CONSTRAINT check_id_salon CHECK (id_salon >=10000 and id_salon<= 99999)
-);
+    CONSTRAINT check_city_capital CHECK (city = INITCAP(city))
+    );
 
 CREATE TABLE Car(
     id_auto NUMBER PRIMARY KEY,
