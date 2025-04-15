@@ -44,7 +44,7 @@ CREATE TABLE Auto_for_rent(
     CONSTRAINT check_id_auto_for_rent CHECK (id_auto_for_rent >= 10000 AND id_auto_for_rent <= 99999)
 );
 
---âñòàâêà
+--comm
 INSERT INTO Auto_sal (id_salon, city, street) 
 VALUES (10000, 'Moscow', 'Lenina');
 INSERT INTO Auto_sal (id_salon, city, street) 
