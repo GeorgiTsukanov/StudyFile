@@ -44,7 +44,7 @@ CREATE TABLE Auto_for_rent(
     CONSTRAINT check_id_auto_for_rent CHECK (id_auto_for_rent >= 10000 AND id_auto_for_rent <= 99999)
 );
 
---вставка
+--ГўГ±ГІГ ГўГЄГ 
 INSERT INTO Auto_sal (id_salon, city, street) 
 VALUES (10000, 'Moscow', 'Lenina');
 INSERT INTO Auto_sal (id_salon, city, street) 
@@ -54,9 +54,9 @@ VALUES(10002, 'Kazan', 'Baumana');
 
 
 INSERT INTO Arendator (id_arendator, first_name, last_name, birth_day, adress, phone_number)
-VALUES (20000, 'Ivan', 'Ivanov', TO_DATE('1990-05-15', 'YYYY-MM-DD'), 'ул. Пушкина, 10', '+79161234567');
+VALUES (20000, 'Ivan', 'Ivanov', TO_DATE('1990-05-15', 'YYYY-MM-DD'), 'st. Kolotushkin, 10', '+79161234567');
 INSERT INTO Arendator (id_arendator, first_name, last_name, birth_day, adress, phone_number)
-VALUES (20001, 'Petr', 'Petrov', TO_DATE('1985-11-22', 'YYYY-MM-DD'), 'пр. Ленина, 5', '+79262345678');
+VALUES (20001, 'Petr', 'Petrov', TO_DATE('1985-11-22', 'YYYY-MM-DD'), 'st. Pushkin, 5', '+79262345678');
 
 
 INSERT INTO Car (id_auto, id_salon, mark_auto, made_in, colour)
