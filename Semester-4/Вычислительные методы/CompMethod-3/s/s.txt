@@ -1,0 +1,72 @@
+//
+ f= @(x) x.^2 + sin(x);
+	[x_otvet, iter] = newton_modifed(f, [1; 1], 1e-6, 100);
+	disp(['Решение: ', x_otvet, ' Кол-во итераций: ', iter]);
+
+//function [x, iter] = newton_modifed(f, x0, tol, max_iter)
+
+    x = x0;
+    iter = 0;
+    err = inf;
+    
+    while err > tol && iter < max_iter
+        F = f(x);
+        J = numerical_jacobian(F, x);
+        
+        Jinv = schulz_inv(J, 1e-3, 50);
+        
+        dx = Jinv * (-F);
+        x_new = x + dx;
+        
+        err = norm(x_new - x);
+        x = x_new;
+        iter = iter + 1;
+        
+        fprintf('Итерация %d: ошибка = %e\n', iter, err);
+    end
+    
+    if iter == max_iter
+        warning('Достигнуто максимальное число итераций');
+    end
+end
+
+
+//
+function J = numerical_jacobian( F, x )
+    m = length(F);
+    n = length(x);
+    j = zeros(m, n);
+    
+    h=1e-5;
+    
+    for k=1:m
+        for j=1:n
+            x_plus = x;
+            x_plus(j) = x_plus(j) + h;
+            
+            x_minus = x;
+            x_minus(j) =  x_minus(j) - h;
+            
+            J(k, j) = (F{k}(x_plus{:})-F{k}(x_minus{:}))/(2*h);
+        end
+    end
+end
+
+
+//
+function Jinv = schulz_inv(A, tol, max_iter)
+    n = size(A, 1);
+    X = A' / (norm(A, 1) * norm(A, inf)); % Начальное приближение
+    
+    for k = 1:max_iter
+        X_new = X * (2 * eye(n) - A * X);
+        err = norm(X_new - X, 'fro');
+        X = X_new;
+        
+        if err < tol
+            break;
+        end
+    end
+    
+    Jinv = X;
+end
