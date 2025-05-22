@@ -2,8 +2,6 @@ import numpy as np
 import sympy as sp
 from sympy.utilities.lambdify import lambdify
 
-def f(t):
-    return t**2
 
 def compute_integral(f, a, x, n=1000):
     if x < a:
@@ -27,10 +25,10 @@ def newton_method(f, a, b, x0, tol=1e-6, max_iter=100):
             break
     return x
 
-def find_roots(f, a, b, search_range=(-10, 10), step=0.5):
+def find_roots(f, a, b, search_range=(-1000, 1000), step=0.5):
     roots = []
     x_values = np.arange(search_range[0], search_range[1] + step, step)
-    
+
     for i in range(len(x_values) - 1):
         x1 = x_values[i]
         x2 = x_values[i + 1]
@@ -40,7 +38,7 @@ def find_roots(f, a, b, search_range=(-10, 10), step=0.5):
             x0 = (x1 + x2) / 2
             root = newton_method(f, a, b, x0)
             roots.append(root)
-    
+
     unique_roots = list(set(np.round(roots, decimals=6)))
     return sorted(unique_roots)
 
@@ -48,14 +46,25 @@ if __name__ == '__main__':
     try:
         x = sp.symbols('x')
         expr = input("Введите f(x): ")
-        f_sympy = sp.sympify(expr)  
+        f_sympy = sp.sympify(expr)
         f = lambdify(x, f_sympy, 'numpy')
         a = int(input("Введите a: "))
         b = int(input("Введите b: "))
-        roots = find_roots(f, a, b, search_range=(-5, 5), step=0.5)
+        roots = find_roots(f, a, b, search_range=(-100, 100), step=0.5)
         print('Корни нелинейного уравнения:')
         for i in roots:
             print(i)
+
+        #аналитическое решение
+        t = sp.symbols('t')
+        integral = sp.integrate(sp.sympify(expr),(x, a, x))
+        print(integral)
+        s = (sorted(sp.solve(integral + sp.sympify("-" + str(b)), x)))
+        print(s)
+
+        for i in roots:
+            print(roots[i] - s[i])
+        
     except (sp.SympifyError, SyntaxError):
         print("Ошибка: некорректный ввод. Попробуйте снова.")
-    
+
