@@ -168,3 +168,19 @@ AND e.salary < (
     FROM employees
     WHERE job_id = 'SA_REP'
 );
+
+--13
+SELECT 
+    d.department_id,
+    d.department_name,
+    (
+        SELECT ROUND(AVG(e.salary), 2)
+        FROM employees e
+        WHERE e.department_id = d.department_id
+    ) AS avg_salary
+FROM 
+    departments d
+ORDER BY 
+    avg_salary DESC;
+
+--14
