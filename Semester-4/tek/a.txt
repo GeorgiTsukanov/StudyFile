@@ -1,33 +1,42 @@
-n = 5;
-A = rand(n);
-
-A_prod = prod(A(:));
-
-i = 1:n;
-B = log(2 + cos(i));
-
-AI = mean(A, 2); 
-AI_sorted = sort(AI, 'ascend');
-
-B_sorted = sort(B, 'descend');
-
-
-if length(AI_sorted) == length(B_sorted)
-    result = AI_sorted .* B_sorted;
-else
-    error('Размеры массивов AI и B не совпадают для поэлементного умножения');
+function find_roots_and_plot()
+    % Функция для нахождения корней уравнения -x = 0 и построения графиков
+    
+    % Определяем функцию
+    f = @(x) -x;
+    
+    % Находим корень уравнения f(x) = 0
+    root = fzero(f, 0); % Начальное приближение - 0
+    
+    % Выводим информацию о корне
+    fprintf('Корень уравнения -x = 0: x = %.2f\n', root);
+    
+    % Создаем диапазон значений x для построения графика
+    x = linspace(-5, 5, 1000);
+    
+    % Вычисляем соответствующие значения y
+    y = f(x);
+    
+    % Создаем новое графическое окно
+    figure;
+    
+    % Построение графика функции
+    plot(x, y, 'b-', 'LineWidth', 2);
+    hold on;
+    
+    % Отмечаем корень на графике
+    plot(root, f(root), 'ro', 'MarkerSize', 10, 'MarkerFaceColor', 'r');
+    
+    % Добавляем линии осей
+    xline(0, 'k-', 'LineWidth', 1); % Ось Y
+    yline(0, 'k-', 'LineWidth', 1); % Ось X
+    
+    % Настройки графика
+    grid on;
+    title('График функции f(x) = -x');
+    xlabel('x');
+    ylabel('f(x)');
+    legend('f(x) = -x', 'Корень уравнения', 'Location', 'northwest');
+    
+    % Сообщение о завершении
+    disp('График построен. Корень отмечен красной точкой.');
 end
-
-disp('Исходная матрица A:');
-disp(A);
-disp(['Произведение всех элементов матрицы A (A_плод): ', num2str(A_prod)]);
-disp('Массив B:');
-disp(B);
-disp('Массив AI (средние значения строк матрицы A):');
-disp(AI);
-disp('Массив AI, отсортированный по возрастанию:');
-disp(AI_sorted);
-disp('Массив B, отсортированный по убыванию:');
-disp(B_sorted);
-disp('Результат поэлементного умножения AI_sorted .* B_sorted:');
-disp(result);
