@@ -1,42 +1,32 @@
-function find_roots_and_plot()
-    % Функция для нахождения корней уравнения -x = 0 и построения графиков
+function minimize_abs_function()
+    % Целевая функция
+    fun = @(x) 4 * abs(x(1)) + 5 * abs(x(2));
     
-    % Определяем функцию
-    f = @(x) -x;
+    % Начальная точка для оптимизации
+    x0 = [1, 1];
     
-    % Находим корень уравнения f(x) = 0
-    root = fzero(f, 0); % Начальное приближение - 0
+    % Находим минимум с помощью fminsearch
+    options = optimset('Display', 'iter', 'TolX', 1e-6, 'TolFun', 1e-6);
+    [x_min, f_min] = fminsearch(fun, x0, options);
     
-    % Выводим информацию о корне
-    fprintf('Корень уравнения -x = 0: x = %.2f\n', root);
+    disp(['Минимум функции достигается в точке: x = ', num2str(x_min(1)), ', y = ', num2str(x_min(2))]);
+    disp(['Значение функции в минимуме: f_min = ', num2str(f_min)]);
     
-    % Создаем диапазон значений x для построения графика
-    x = linspace(-5, 5, 1000);
+    % Построение графика
+    [X, Y] = meshgrid(linspace(-5, 5, 100), linspace(-5, 5, 100));
+    Z = 4 * abs(X) + 5 * abs(Y);
     
-    % Вычисляем соответствующие значения y
-    y = f(x);
-    
-    % Создаем новое графическое окно
     figure;
-    
-    % Построение графика функции
-    plot(x, y, 'b-', 'LineWidth', 2);
-    hold on;
-    
-    % Отмечаем корень на графике
-    plot(root, f(root), 'ro', 'MarkerSize', 10, 'MarkerFaceColor', 'r');
-    
-    % Добавляем линии осей
-    xline(0, 'k-', 'LineWidth', 1); % Ось Y
-    yline(0, 'k-', 'LineWidth', 1); % Ось X
-    
-    % Настройки графика
-    grid on;
-    title('График функции f(x) = -x');
+    surf(X, Y, Z);
     xlabel('x');
-    ylabel('f(x)');
-    legend('f(x) = -x', 'Корень уравнения', 'Location', 'northwest');
+    ylabel('y');
+    zlabel('f(x,y)');
+    title('График функции f(x,y) = 4|x| + 5|y|');
+    shading interp;
+    colorbar;
     
-    % Сообщение о завершении
-    disp('График построен. Корень отмечен красной точкой.');
+    % Отметим точку минимума на графике
+    hold on;
+    plot3(x_min(1), x_min(2), f_min, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
+    hold off;
 end
